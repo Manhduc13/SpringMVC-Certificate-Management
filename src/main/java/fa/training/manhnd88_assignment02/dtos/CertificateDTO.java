@@ -20,5 +20,7 @@ public class CertificateDTO {
 
     String description;
 
-    String category;
+    int categoryID;
+
+    CategoryDTO categoryDTO;
 }
