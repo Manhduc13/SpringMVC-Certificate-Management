@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{shared/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Category Management</title>
+</head>
+<body>
+<section layout:fragment="content" class="form-container w-full py-4 px-20">
+    <div class="card p-3">
+        <!-- Create/Update -->
+        <div class="title border-b border-orange-300 mb-4">
+            <h1 class="text-2xl text-blue-500 my-3">IT CATEGORY MANAGEMENT</h1>
+            <div class="message">
+                <p th:text="${error}" class="text-red-500"></p>
+                <p th:text="${success}" class="text-green-500"></p>
+            </div>
+        </div>
+        <form th:action=" @{/categories/create}" method="post" th:object="${categoryDTO}">
+            <div class="card-body flex flex-col">
+                <div class="form-group mb-3 w-full">
+                    <label for="name" class="block mb-2">Name <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" id="name" placeholder="Enter category name"
+                           class="w-full border border-slate-300 p-2 rounded-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-lg">
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500"></span>
+                </div>
+                <div class="form-group mb-3 w-full">
+                    <label for="description" class="block mb-2">Description <span class="text-red-500">*</span></label>
+                    <input type="text" name="description" id="description" placeholder="Enter description"
+                           class="w-full border border-slate-300 p-2 rounded-md focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-lg">
+                    <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+                          class="text-red-500"></span>
+                </div>
+            </div>
+            <div class="card-footer flex justify-end *:ml-2 mb-4 mt-1">
+                <button type="submit" class="p-2 px-4 bg-blue-500 text-white hover:bg-blue-700 rounded-md">
+                    Create
+                </button>
+                <button type="reset" class="p-2 px-4 bg-red-500 text-white hover:bg-red-700 rounded-md">
+                    Reset
+                </button>
+            </div>
+        </form>
+        <!-- Display data -->
+        <table class="w-full my-3">
+            <thead>
+            <tr class="*:border *:border-slate-300 *:p-2 bg-orange-300">
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="categoryDTO : ${categoryDTOList}" class="*:border *:border-slate-300 *:p-2">
+                <td th:text="${categoryDTO.id}"></td>
+                <td th:text="${categoryDTO.name}"></td>
+                <td th:text="${categoryDTO.description}"></td>
+                <td>
+                    <form th:action="@{/categories/delete/{id}(id=${categoryDTO.id})}"
+                          onsubmit="return confirm('Do you want to delete the record?')">
+                        <button type="submit" class="border-0 text-blue-500 hover:underline">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- Pagination -->
+        <div class="card-footer flex justify-center p-2">
+            <!-- List Page -->
+            <div class="page-link flex space-x-2 *:block *:p-2 *:h-10 *:w-10
+                        *:flex *:justify-center *:items-center">
+                <a th:href="@{/categories(page=${page - 1})}"
+                   th:class="${page == 0} ? 'pointer-events-none' : 'hover:bg-blue-500 hover:text-white'">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <a th:each="i : ${pageNumbers}"
+                   th:href="@{/categories(page=${i})}" th:text="${i + 1}"
+                   th:class="${page == i} ? 'pointer-events-none bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white'">
+                </a>
+                <a th:href="@{/categories(page=${page + 1})}"
+                   th:class="${page == totalPages - 1} ? 'pointer-events-none' : 'hover:bg-blue-500 hover:text-white'">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

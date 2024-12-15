@@ -8,6 +8,8 @@ import fa.training.manhnd88_assignment02.repositories.CertificateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,18 @@ public class CategoryServiceImpl implements CategoryService {
                 .name(category.getName())
                 .description(category.getDescription())
                 .build();
+    }
+
+    @Override
+    public Page<CategoryDTO> findAllWithPageable(Pageable pageable) {
+        Page<Category> categories = categoryRepository.findAll(pageable);
+        return categories.map(category -> {
+            return CategoryDTO.builder()
+                    .id(category.getId())
+                    .name(category.getName())
+                    .description(category.getDescription())
+                    .build();
+        });
     }
 
     @Override
