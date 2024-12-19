@@ -27,63 +27,36 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping
-    public String findAll(
+    public String home(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             Model model) {
-        // Create new categoryDTO
-        CategoryDTO categoryDTO = new CategoryDTO();
-        // Passing to view to validate data
-        model.addAttribute("categoryDTO", categoryDTO);
-        // Pagination
-        Pageable pageable = PageRequest.of(page, 5);
-        Page<CategoryDTO> categoryDTOList = categoryService.findAllWithPageable(pageable);
-        model.addAttribute("categoryDTOList", categoryDTOList.getContent());
-        model.addAttribute("totalPages", categoryDTOList.getTotalPages());
-        model.addAttribute("page", page);
-        int pageLimit = 2;
-        int totalPages = categoryDTOList.getTotalPages();
-        List<Integer> pageNumbers = IntStream
-                .range(Math.max(page - pageLimit, 0), Math.min(page + pageLimit + 1, totalPages)).boxed()
-                .collect(Collectors.toList());
-        model.addAttribute("pageNumbers", pageNumbers);
+
+        loadData(page, model, new CategoryDTO());
 
         return "categories/index";
     }
 
-    @PostMapping("/create")
+    @GetMapping("/save/{id}")
+    public String save(@PathVariable("id") int id, Model model) {
+        CategoryDTO categoryDTO = categoryService.findById(id);
+        loadData(0, model, categoryDTO);
+        return "categories/index";
+    }
+
+    @PostMapping("/save")
     public String create(@ModelAttribute("categoryDTO") @Valid CategoryDTO categoryDTO,
                          BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model,
                          @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
         // Validate data from form
         if (bindingResult.hasErrors()) {
-            // Recreate table data and pagination
-            Pageable pageable = PageRequest.of(page, 5);
-            Page<CategoryDTO> categoryDTOList = categoryService.findAllWithPageable(pageable);
-            model.addAttribute("categoryDTOList", categoryDTOList.getContent());
-            model.addAttribute("totalPages", categoryDTOList.getTotalPages());
-            model.addAttribute("page", page);
-            int pageLimit = 2;
-            int totalPages = categoryDTOList.getTotalPages();
-            List<Integer> pageNumbers = IntStream
-                    .range(Math.max(page - pageLimit, 0), Math.min(page + pageLimit + 1, totalPages)).boxed()
-                    .collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
+            loadData(page, model, categoryDTO);
             return "categories/index";
         }
-        boolean result = false;
         try {
-            result = categoryService.create(categoryDTO);
+            categoryService.save(categoryDTO);
+            redirectAttributes.addFlashAttribute("success", "Certificate saved successfully");
         } catch (Exception e) {
-            // Passing error message to view creating
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/categories";
-        }
-        if (result) {
-            // Redirect to index of categories with success message
-            redirectAttributes.addFlashAttribute("success", "Create category success");
-        } else {
-            // Passing error message to view creating
-            redirectAttributes.addFlashAttribute("error", "Create category failed");
         }
         return "redirect:/categories";
     }
@@ -107,4 +80,20 @@ public class CategoryController {
         return "redirect:/categories";
     }
 
+    private void loadData(int page, Model model, CategoryDTO categoryDTO) {
+        model.addAttribute("categoryDTO", categoryDTO);
+        // Data with pagination
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<CategoryDTO> categoryDTOs = categoryService.findAllWithPageable(pageable);
+        model.addAttribute("categoryDTOs", categoryDTOs.getContent());
+        // Pagination
+        int pageLimit = 2;
+        int totalPages = categoryDTOs.getTotalPages();
+        List<Integer> pageNumbers = IntStream
+                .range(Math.max(page - pageLimit, 0), Math.min(page + pageLimit + 1, totalPages)).boxed()
+                .collect(Collectors.toList());
+        model.addAttribute("pageNumbers", pageNumbers);
+        model.addAttribute("totalPages", categoryDTOs.getTotalPages());
+        model.addAttribute("page", page);
+    }
 }

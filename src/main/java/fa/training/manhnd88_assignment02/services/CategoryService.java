@@ -13,6 +13,8 @@ public interface CategoryService {
 
     Page<CategoryDTO> findAllWithPageable(Pageable pageable);
 
+    boolean save(CategoryDTO categoryDTO);
+
     boolean create(CategoryDTO categoryDTO);
 
     boolean update(CategoryDTO categoryDTO);

@@ -57,6 +57,31 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public boolean save(CategoryDTO categoryDTO) {
+        // Check null request
+        if (categoryDTO == null) {
+            throw new IllegalArgumentException("Request is null");
+        }
+        // Check create or update
+        if (categoryRepository.existsById(categoryDTO.getId())) {
+            // Update
+            Category category = categoryRepository.findById(categoryDTO.getId()).get();
+            category.setName(categoryDTO.getName());
+            category.setDescription(categoryDTO.getDescription());
+            categoryRepository.save(category);
+            return true;
+        } else {
+            // Create
+            Category category = Category.builder()
+                    .name(categoryDTO.getName())
+                    .description(categoryDTO.getDescription())
+                    .build();
+            Category savedCategory = categoryRepository.save(category);
+            return categoryRepository.existsById(savedCategory.getId());
+        }
+    }
+
+    @Override
     public boolean create(CategoryDTO categoryDTO) {
         if (categoryDTO == null) {
             throw new IllegalArgumentException("Category is null");
