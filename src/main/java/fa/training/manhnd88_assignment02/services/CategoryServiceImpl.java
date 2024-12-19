@@ -82,42 +82,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public boolean create(CategoryDTO categoryDTO) {
-        if (categoryDTO == null) {
-            throw new IllegalArgumentException("Category is null");
-        }
-        if (categoryRepository.findByName(categoryDTO.getName()) != null) {
-            throw new IllegalArgumentException("Category name already exists");
-        }
-        Category category = Category.builder()
-                .name(categoryDTO.getName())
-                .description(categoryDTO.getDescription())
-                .build();
-        categoryRepository.save(category);
-        return true;
-    }
-
-    @Override
-    public boolean update(CategoryDTO categoryDTO) {
-        if (categoryDTO == null) {
-            throw new IllegalArgumentException("Category is null");
-        }
-        Category category = categoryRepository.findById(categoryDTO.getId()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
-        Category sameNameCategory = categoryRepository.findByName(categoryDTO.getName());
-        if (sameNameCategory != null && sameNameCategory.getId() != category.getId()) {
-            throw new IllegalArgumentException("Category name already exists");
-        }
-        category.setName(categoryDTO.getName());
-        category.setDescription(categoryDTO.getDescription());
-        try {
-            categoryRepository.save(category);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
     public boolean delete(int id) {
         // Find category to delete
         Category category = categoryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Category not found"));

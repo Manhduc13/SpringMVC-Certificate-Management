@@ -15,9 +15,5 @@ public interface CategoryService {
 
     boolean save(CategoryDTO categoryDTO);
 
-    boolean create(CategoryDTO categoryDTO);
-
-    boolean update(CategoryDTO categoryDTO);
-
     boolean delete(int id);
 }

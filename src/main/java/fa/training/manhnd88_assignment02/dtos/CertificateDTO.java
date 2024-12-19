@@ -20,13 +20,12 @@ public class CertificateDTO {
     String id;
 
     @NotBlank(message = "Certificate name is required")
-    String cert_name;
+    String name;
 
     @NotNull(message = "Certificate price is required")
     BigDecimal cost;
 
-    String description;
-
+    @NotNull(message = "Category is required")
     int categoryID;
 
     CategoryDTO categoryDTO;

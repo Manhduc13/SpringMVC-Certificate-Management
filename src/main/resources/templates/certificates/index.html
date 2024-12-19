@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{shared/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Category Management</title>
+</head>
+<body>
+<section layout:fragment="content" class="form-container w-full py-4 px-20">
+    <div class="card p-3">
+        <!-- Create/Update -->
+        <div class="title border-b border-orange-300 mb-4">
+            <h1 class="text-2xl text-blue-500 my-3">IT CERTIFICATE MANAGEMENT</h1>
+            <div class="message">
+                <p th:text="${error}" class="text-red-500"></p>
+                <p th:text="${success}" class="text-green-500"></p>
+            </div>
+        </div>
+        <form th:action="@{/certificates/save}" method="post" th:object="${certificateDTO}">
+            <!-- Form fields -->
+            <div class="flex flex-row justify-between">
+                <div class="form-group w-[48%] mb-3">
+                    <label for="id" class="block mb-2">Cert Id <span class="text-red-500">*</span></label>
+                    <input type="text" name="id" id="id" th:value="*{id}" placeholder="Enter certification id"
+                           class="w-full border border-slate-300 p-2 rounded-md bg-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-lg">
+                    <span th:if="${#fields.hasErrors('id')}" th:errors="*{id}" class="text-red-500"></span>
+                </div>
+                <div class="form-group w-[48%] mb-3">
+                    <label for="cost" class="block mb-2">Cost <span class="text-red-500">*</span></label>
+                    <input type="number" name="cost" id="cost" th:value="*{cost}" placeholder="Enter certification cost"
+                           class="w-full border border-slate-300 p-2 rounded-md bg-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-lg">
+                    <span th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}" class="text-red-500"></span>
+                </div>
+            </div>
+            <div class="flex flex-row justify-between">
+                <div class="form-group w-[48%] mb-3">
+                    <label for="name" class="block mb-2">Cert Name <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" id="name" th:value="*{name}" placeholder="Enter certification name"
+                           class="w-full border border-slate-300 p-2 rounded-md bg-slate-300">
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500"></span>
+                </div>
+                <div class="form-group w-[48%] mb-3">
+                    <label for="categoryID" class="block mb-2">Category <span class="text-red-500">*</span></label>
+                    <select name="categoryID" id="categoryID"
+                            class="w-full border border-slate-300 p-2 rounded-md bg-slate-300">
+                        <option value="" selected disabled>Choose a Category</option>
+                        <option th:each="categoryDto : ${categoryDTOs}"
+                                th:value="${categoryDto.id}"
+                                th:text="${categoryDto.name}"
+                                th:selected="${categoryDto.id == certificateDTO.categoryID}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}" class="text-red-500"></span>
+                </div>
+            </div>
+            <!-- Buttons -->
+            <div class="card-footer flex justify-end *:ml-2 mb-4 mt-1 *:p-2 *:px-4 *:text-white *:rounded-md">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700">
+                    Save
+                </button>
+                <button type="reset" class="bg-red-500 hover:bg-red-700">
+                    Reset
+                </button>
+                <a class="bg-yellow-500 hover:bg-yellow-700">
+                    Classify
+                </a>
+            </div>
+        </form>
+        <!-- Display data -->
+        <table class="w-full my-3">
+            <thead>
+            <tr class="*:border *:border-slate-300 *:p-2 bg-orange-300">
+                <th>Id</th>
+                <th>Certification Name</th>
+                <th>Cost($)</th>
+                <th>Category</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="certificateDTO : ${certificateDTOs}" class="*:border *:border-slate-300 *:p-2">
+                <td>
+                    <a th:href="@{/certificates/save/{id}(id=${certificateDTO.id})}" th:text="${certificateDTO.id}"
+                       class="text-blue-500 hover:underline"></a>
+                </td>
+                <td th:text="${certificateDTO.name}"></td>
+                <td th:text="${certificateDTO.cost}"></td>
+                <td th:text="${certificateDTO.categoryDTO.name}"></td>
+                <td>
+                    <form th:action="@{/certificates/delete/{id}(id=${certificateDTO.id})}"
+                          onsubmit="return confirm('Do you want to delete the record?')">
+                        <button type="submit" class="border-0 text-blue-500 hover:underline">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- Pagination -->
+        <div class="card-footer flex justify-center p-2">
+            <!-- List Page -->
+            <div class="page-link flex space-x-2 *:block *:p-2 *:h-10 *:w-10
+                        *:flex *:justify-center *:items-center">
+                <a th:href="@{/certificates(page=${page - 1})}"
+                   th:class="${page == 0} ? 'pointer-events-none' : 'hover:bg-blue-500 hover:text-white'">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <a th:each="i : ${pageNumbers}"
+                   th:href="@{/certificates(page=${i})}" th:text="${i + 1}"
+                   th:class="${page == i} ? 'pointer-events-none bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white'">
+                </a>
+                <a th:href="@{/certificates(page=${page + 1})}"
+                   th:class="${page == totalPages - 1} ? 'pointer-events-none' : 'hover:bg-blue-500 hover:text-white'">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

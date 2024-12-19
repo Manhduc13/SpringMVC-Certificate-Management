@@ -9,14 +9,21 @@ import fa.training.manhnd88_assignment02.repositories.CertificateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
+@Transactional
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CertificateServiceImpl implements CertificateService {
     CertificateRepository certificateRepository;
     CategoryRepository categoryRepository;
+    CategoryService categoryService;
 
     @Override
     public List<CertificateDTO> findAll() {
@@ -30,45 +37,46 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean create(CertificateDTO certificateDTO) {
-        if (certificateDTO == null) {
-            throw new IllegalArgumentException("Certificate is null");
-        }
-        Category category = categoryRepository.findById(certificateDTO.getCategoryID()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
-        Certificate certificate = Certificate.builder()
-                .id(certificateDTO.getId())
-                .cert_name(certificateDTO.getCert_name())
-                .description(certificateDTO.getDescription())
-                .cost(certificateDTO.getCost())
-                .category(category)
-                .build();
-        try {
-            certificateRepository.save(certificate);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public Page<CertificateDTO> findAllWithPageable(Pageable pageable) {
+        Page<Certificate> certificates = certificateRepository.findAll(pageable);
+        return certificates.map(certificate -> {
+            CategoryDTO categoryDTO = categoryService.findById(certificate.getCategory().getId());
+            return CertificateDTO.builder()
+                    .id(certificate.getId())
+                    .name(certificate.getName())
+                    .cost(certificate.getCost())
+                    .categoryDTO(categoryDTO)
+                    .build();
+        });
     }
 
     @Override
-    public boolean update(CertificateDTO certificateDTO) {
+    public boolean save(CertificateDTO certificateDTO) {
+        // Check null request
         if (certificateDTO == null) {
-            throw new IllegalArgumentException("Certificate is null");
+            throw new IllegalArgumentException("Request is null");
         }
-        Certificate certificate = certificateRepository.findById(certificateDTO.getId()).orElseThrow(() -> new IllegalArgumentException("Certificate not found"));
+        // Check existed category
         Category category = categoryRepository.findById(certificateDTO.getCategoryID()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
-        certificate = Certificate.builder()
-                .id(certificateDTO.getId())
-                .cert_name(certificateDTO.getCert_name())
-                .description(certificateDTO.getDescription())
-                .cost(certificateDTO.getCost())
-                .category(category)
-                .build();
-        try {
+        // Check create or update
+        if (certificateRepository.existsById(certificateDTO.getId())) {
+            // Update
+            Certificate certificate = certificateRepository.findById(certificateDTO.getId()).get();
+            certificate.setName(certificateDTO.getName());
+            certificate.setCost(certificateDTO.getCost());
+            certificate.setCategory(category);
             certificateRepository.save(certificate);
             return true;
-        } catch (Exception e) {
-            return false;
+        } else {
+            // Create
+            Certificate certificate = Certificate.builder()
+                    .id(certificateDTO.getId())
+                    .name(certificateDTO.getName())
+                    .cost(certificateDTO.getCost())
+                    .category(category)
+                    .build();
+            Certificate savedCertificate = certificateRepository.save(certificate);
+            return certificateRepository.existsById(certificateDTO.getId());
         }
     }
 
@@ -90,8 +98,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         return CertificateDTO.builder()
                 .id(certificate.getId())
-                .cert_name(certificate.getCert_name())
-                .description(certificate.getDescription())
+                .name(certificate.getName())
                 .cost(certificate.getCost())
                 .categoryID(certificate.getCategory().getId())
                 .categoryDTO(categoryDTO)

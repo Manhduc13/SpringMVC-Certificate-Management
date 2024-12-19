@@ -19,12 +19,10 @@ public class Certificate {
     @Column(length = 12)
     String id;
 
-    String cert_name;
+    String name;
 
     @Column(precision = 5, scale = 2)
     BigDecimal cost;
-
-    String description;
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
