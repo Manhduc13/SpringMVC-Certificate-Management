@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Category Management</title>
+    <title>Certificate Management</title>
 </head>
 <body>
 <section layout:fragment="content" class="form-container w-full py-4 px-20">
@@ -22,6 +22,7 @@
                 <div class="form-group w-[48%] mb-3">
                     <label for="id" class="block mb-2">Cert Id <span class="text-red-500">*</span></label>
                     <input type="text" name="id" id="id" th:value="*{id}" placeholder="Enter certification id"
+                           th:readonly="${certificateDTO.id != null}"
                            class="w-full border border-slate-300 p-2 rounded-md bg-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-lg">
                     <span th:if="${#fields.hasErrors('id')}" th:errors="*{id}" class="text-red-500"></span>
                 </div>
@@ -49,7 +50,8 @@
                                 th:text="${categoryDto.name}"
                                 th:selected="${categoryDto.id == certificateDTO.categoryID}"></option>
                     </select>
-                    <span th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}" class="text-red-500"></span>
+                    <span th:if="${#fields.hasErrors('categoryID')}" th:errors="*{categoryID}"
+                          class="text-red-500"></span>
                 </div>
             </div>
             <!-- Buttons -->
@@ -60,9 +62,9 @@
                 <button type="reset" class="bg-red-500 hover:bg-red-700">
                     Reset
                 </button>
-                <a class="bg-yellow-500 hover:bg-yellow-700">
+                <button type="button" class="bg-yellow-500 hover:bg-yellow-700" onclick="openModal()">
                     Classify
-                </a>
+                </button>
             </div>
         </form>
         <!-- Display data -->
@@ -99,8 +101,7 @@
         <!-- Pagination -->
         <div class="card-footer flex justify-center p-2">
             <!-- List Page -->
-            <div class="page-link flex space-x-2 *:block *:p-2 *:h-10 *:w-10
-                        *:flex *:justify-center *:items-center">
+            <div class="page-link flex space-x-2 *:block *:p-2 *:h-10 *:w-10 *:flex *:justify-center *:items-center">
                 <a th:href="@{/certificates(page=${page - 1})}"
                    th:class="${page == 0} ? 'pointer-events-none' : 'hover:bg-blue-500 hover:text-white'">
                     <i class="fas fa-angle-left"></i>
@@ -116,6 +117,57 @@
             </div>
         </div>
     </div>
+    
+    <div id="classify-modal"
+         class="hidden fixed z-10 pt-24 left-0 top-0 w-full h-full overflow-auto bg-black bg-opacity-40">
+        <div class="bg-white m-auto p-3 border border-gray-400 w-3/5 h-[567px] overflow-auto">
+            <span class="text-gray-400 float-right text-2xl font-bold hover:text-black focus:text-black focus:outline-none hover:no-underline focus:no-underline cursor-pointer">
+                &times;
+            </span>
+            <div class="title *:my-3">
+                <h2 class="border-b border-slate-300 text-2xl pb-3 font-bold">Certificate Management</h2>
+                <p>Total of certificates by the category</p>
+            </div>
+            <table class="w-full">
+                <thead>
+                <tr class="*:border-b *:border-slate-300 *:p-2 bg-slate-300">
+                    <th>#</th>
+                    <th>Category</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="modal : ${modals}" class="*:border *:border-slate-300 *:p-2">
+                    <td th:text="${modal.categoryID}"></td>
+                    <td th:text="${modal.categoryName}"></td>
+                    <td th:text="${modal.certificateNumbers}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const modal = document.getElementById("classify-modal");
+        
+        function openModal() {
+            if (modal.classList.contains("hidden")) {
+                modal.classList.remove("hidden")
+            }
+        }
+        
+        function closeModal() {
+            if (!modal.classList.contains("hidden")) {
+                modal.classList.add("hidden")
+            }
+        }
+        
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.classList.add("hidden")
+            }
+        }
+    </script>
 </section>
 </body>
 </html>

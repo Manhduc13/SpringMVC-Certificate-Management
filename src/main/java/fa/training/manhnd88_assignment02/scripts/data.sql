@@ -1,4 +1,15 @@
--- Inserting 30 records into the categories table
+-- Create a new database called 'certmanagement'
+-- Connect to the 'master' database to run this snippet
+USE master
+GO
+-- Create the new database if it does not exist already
+IF NOT EXISTS (SELECT [name]
+               FROM sys.databases
+               WHERE [name] = N'certmanagement')
+CREATE DATABASE certmanagement
+GO
+
+-- Inserting records into the categories table
 INSERT INTO [dbo].[categories] (description, name)
 VALUES ('Skills in managing Kubernetes clusters', 'CKA'),
        ('Building and maintaining AWS applications', 'AWS Developer'),
@@ -31,7 +42,7 @@ VALUES ('Skills in managing Kubernetes clusters', 'CKA'),
        ('Data science with R', 'R Data Sci'),
        ('Database management with SQL', 'SQL Cert');
 
--- Inserting 30 records into the certificates table
+-- Inserting records into the certificates table
 INSERT INTO [dbo].[certificates] (category_id, cost, id, name)
 VALUES ((SELECT id FROM [dbo].[categories] WHERE name = 'CKA'), 300.00, 'CERT-01-01',
         'Certified Kubernetes Administrator'),

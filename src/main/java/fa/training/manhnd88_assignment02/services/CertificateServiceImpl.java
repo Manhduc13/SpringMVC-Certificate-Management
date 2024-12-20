@@ -2,8 +2,10 @@ package fa.training.manhnd88_assignment02.services;
 
 import fa.training.manhnd88_assignment02.dtos.CategoryDTO;
 import fa.training.manhnd88_assignment02.dtos.CertificateDTO;
+import fa.training.manhnd88_assignment02.dtos.ModalDTO;
 import fa.training.manhnd88_assignment02.entities.Category;
 import fa.training.manhnd88_assignment02.entities.Certificate;
+import fa.training.manhnd88_assignment02.entities.Modal;
 import fa.training.manhnd88_assignment02.repositories.CategoryRepository;
 import fa.training.manhnd88_assignment02.repositories.CertificateRepository;
 import lombok.AccessLevel;
@@ -103,5 +105,18 @@ public class CertificateServiceImpl implements CertificateService {
                 .categoryID(certificate.getCategory().getId())
                 .categoryDTO(categoryDTO)
                 .build();
+    }
+
+    @Override
+    public List<ModalDTO> getModals() {
+        List<Modal> modals = certificateRepository.getModals();
+        return modals.stream().map(modal -> {
+            Category category = categoryRepository.findById(modal.getCategoryID()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
+            return ModalDTO.builder()
+                    .categoryID(modal.getCategoryID())
+                    .certificateNumbers(modal.getCertificateNumbers())
+                    .categoryName(category.getName())
+                    .build();
+        }).toList();
     }
 }

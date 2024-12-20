@@ -1,6 +1,7 @@
 package fa.training.manhnd88_assignment02.services;
 
 import fa.training.manhnd88_assignment02.dtos.CertificateDTO;
+import fa.training.manhnd88_assignment02.dtos.ModalDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,4 +17,6 @@ public interface CertificateService {
     boolean save(CertificateDTO certificateDTO);
 
     boolean delete(String id);
+
+    List<ModalDTO> getModals();
 }

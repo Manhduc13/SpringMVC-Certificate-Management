@@ -2,6 +2,7 @@ package fa.training.manhnd88_assignment02.controllers;
 
 import fa.training.manhnd88_assignment02.dtos.CategoryDTO;
 import fa.training.manhnd88_assignment02.dtos.CertificateDTO;
+import fa.training.manhnd88_assignment02.dtos.ModalDTO;
 import fa.training.manhnd88_assignment02.services.CategoryService;
 import fa.training.manhnd88_assignment02.services.CertificateService;
 import jakarta.validation.Valid;
@@ -71,7 +72,7 @@ public class CertificateController {
             result = certificateService.delete(id);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/categories";
+            return "redirect:/certificates";
         }
         if (result) {
             // Redirect to index of categories
@@ -80,7 +81,7 @@ public class CertificateController {
             // Passing error message to index
             redirectAttributes.addFlashAttribute("error", "Delete category failed");
         }
-        return "redirect:/categories";
+        return "redirect:/certificates";
     }
 
     private void loadData(int page, Model model, CertificateDTO certificateDTO) {
@@ -102,5 +103,8 @@ public class CertificateController {
         model.addAttribute("pageNumbers", pageNumbers);
         model.addAttribute("totalPages", certificateDTOs.getTotalPages());
         model.addAttribute("page", page);
+        // Get Modals table
+        List<ModalDTO> modals = certificateService.getModals();
+        model.addAttribute("modals", modals);
     }
 }
